@@ -11,14 +11,14 @@
 
 ---
 
-# Instalación
+## Instalación
 
 ```bash
 git clone https://github.com/m4lal0/checkDMARC
 cd checkDMARC; chmod +x checkDMARC.sh && mv checkDMARC.sh /usr/local/bin/checkDMARC
 ```
 
-# ¿Cómo ejecuto la herramienta?
+#3 ¿Cómo ejecuto la herramienta?
 
 Para el funcionamiento, es necesario especificar el dominio usando el parámetro ***`-d`*** ó ***`--domain`***:
 
@@ -44,10 +44,10 @@ checkDMARC --file [DOMAIN_LIST]
 
 ![checkDMARC-Domain-List](./images/Check-Domain-List.png)
 
-# Actualizar la herramienta
+## Actualizar la herramienta
 
 Para poder actualizar la herramienta es necesario ejecutarla con el parámetro ***`-u`*** ó ***`--update`***, con ello verifica si existe una nueva versión y si la acepta, se iniciará la actualización completa.
 
 ```bash
-./checkDMARC --update
+checkDMARC --update
 ```
