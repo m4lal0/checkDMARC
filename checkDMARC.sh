@@ -78,7 +78,7 @@ On_White='\033[47m'     # Background White
 trap ctrl_c INT
 
 # Variables globales
-VERSION=1.0.2           # Versión del script
+VERSION=1.0.2
 declare -i COUNTER=0    # Contador de dominios procesados
 declare -i VULNERABLES=0 # Contador de dominios vulnerables
 readonly BY='By @m4lal0' # Autor del script
@@ -352,7 +352,7 @@ while getopts ":d:f:o:uvh" arg; do
         o) OUTPUT_FORMAT=$OPTARG ;;
         v) printVersion ;;
         u) update ;;
-        h) helpPanel ;;
+        h) banner; helpPanel; tput cnorm; exit 1 ;;
         *) helpPanel ;;
     esac
 done
