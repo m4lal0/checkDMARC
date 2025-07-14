@@ -93,16 +93,16 @@ function ctrl_c(){
 
 function helpPanel(){
     # Mostrar el panel de ayuda con opciones y ejemplos de uso
-    echo -e "${BWhite}Comprobar si un dominio o una lista de dominios pueden ser suplantados en base a los registros DMARC.${Color_Off}"
-    echo -e "\n${BWhite}USO: ${BGreen}checkDMARC ${LBlue}[${Color_Off}${BRed}-h${Color_Off}${LBlue}]${Color_Off} ${BRed}-d DOMAIN${Color_Off} ${LBlue}[${Color_Off}${BRed}-f FILE${Color_Off}${LBlue}]${Color_Off} ${LBlue}[${Color_Off}${BRed}-o${Color_Off}${LBlue}]${Color_Off} ${LBlue}[${Color_Off}${BRed}-v${Color_Off}${LBlue}]${Color_Off} ${LBlue}[${Color_Off}${BRed}-u${Color_Off}${LBlue}]${Color_Off}"
-
+    echo -e "\n${BWhite}USO: ${BGreen}checkDMARC ${LBlue}[${Color_Off}${BRed}-h${Color_Off}${LBlue}]${Color_Off} ${BRed}-d DOMAIN${Color_Off} ${LBlue}[${Color_Off}${BRed}-f FILE${Color_Off}${LBlue}]${Color_Off} ${LBlue}[${Color_Off}${BRed}-o {txt,json}${Color_Off}${LBlue}]${Color_Off} ${LBlue}[${Color_Off}${BRed}-v${Color_Off}${LBlue}]${Color_Off} ${LBlue}[${Color_Off}${BRed}-u${Color_Off}${LBlue}]${Color_Off}"
+    echo -e "\n${BGreen}checkDMARC${BWhite}: Comprobar si un dominio o una lista de dominios pueden ser suplantados en base a los registros DMARC.${Color_Off}"
+    
     echo -e "\n${BWhite}OPCIONES:${Color_Off}\n"
-    echo -e "  ${BRed}-d DOMAIN, --domain DOMAIN${Color_Off}    ${IWhite}Nombre del dominio${Color_Off}"
-    echo -e "  ${BRed}-f FILE, --file FILE${Color_Off}          ${IWhite}Lee archivo con listado de dominios${Color_Off}"
-    echo -e "  ${BRed}-o, --output${Color_Off}                  ${IWhite}Formato de salida (txt ó json)${Color_Off}"
-    echo -e "  ${BRed}-v, --version${Color_Off}                 ${IWhite}Mostrar la versión instalada${Color_Off}"
-    echo -e "  ${BRed}-u, --update${Color_Off}                  ${IWhite}Actualizar la aplicación${Color_Off}"
-    echo -e "  ${BRed}-h, --help${Color_Off}                    ${IWhite}Mostrar este panel de ayuda${Color_Off}\n"
+    echo -e "  ${BRed}-d DOMAIN, --domain DOMAIN${Color_Off}    ${IWhite}Nombre del dominio.${Color_Off}"
+    echo -e "  ${BRed}-f FILE, --file FILE${Color_Off}          ${IWhite}Lee archivo con listado de dominios.${Color_Off}"
+    echo -e "  ${BRed}-o, --output${Color_Off}                  ${IWhite}Formato de salida {txt ó json}. Default json.${Color_Off}"
+    echo -e "  ${BRed}-v, --version${Color_Off}                 ${IWhite}Mostrar la versión instalada.${Color_Off}"
+    echo -e "  ${BRed}-u, --update${Color_Off}                  ${IWhite}Actualizar la aplicación.${Color_Off}"
+    echo -e "  ${BRed}-h, --help${Color_Off}                    ${IWhite}Mostrar este panel de ayuda.${Color_Off}\n"
 
     echo -e "${BBlue}[${BWhite}Ejemplos de uso${BBlue}]${Color_Off}\n"
     echo -e "${BGreen}Comprobar si un dominio cuenta con registro DMARC:${Color_Off}"
@@ -345,20 +345,28 @@ done
 eval set -- $args
 
 declare -i parameter_counter=0
-while getopts ":d:f:o:uvh" arg; do
+while getopts ":d:f:ouvh" arg; do
     case $arg in
         d) DOMAIN=$OPTARG && let parameter_counter+=1 ;;
         f) FILE=$OPTARG && let parameter_counter+=1 ;;
-        o) OUTPUT_FORMAT=$OPTARG ;;
+        o) OUTPUT_FORMAT=${OPTARG:-"json"} ;;
         v) printVersion ;;
         u) update ;;
         h) banner; helpPanel; tput cnorm; exit 1 ;;
-        *) helpPanel ;;
+        *) banner; helpPanel; tput cnorm; exit 1 ;;
     esac
 done
 
+# Validación: si no hay parametros
+if [[ $parameter_counter -eq 0 ]]; then
+    banner
+    helpPanel
+    tput cnorm
+    exit 1
+fi
+
 # Validación de parámetros
-if [ -n "$OUTPUT_FORMAT" ] && [ $parameter_counter -eq 0 ]; then
+if [[ -n "$OUTPUT_FORMAT" && $parameter_counter -eq 0 ]]; then
     banner
     echo -e "\n${LBlue}[${BRed}✘${LBlue}]${Color_Off} ${On_Red}${BWhite}Error:${Color_Off} ${BRed}Debe usar el parámetro -d o -f junto con -o.${Color_Off}"
     tput cnorm
@@ -366,10 +374,11 @@ if [ -n "$OUTPUT_FORMAT" ] && [ $parameter_counter -eq 0 ]; then
 fi
 
 # Lógica principal del script
-if [ $parameter_counter -eq 0 ] || [ $parameter_counter -ge 2 ]; then
+if [[ $parameter_counter -eq 0 || $parameter_counter -ge 2 ]]; then
     banner
-    helpPanel
+    echo -e "\n${LBlue}[${BRed}✘${LBlue}]${Color_Off} ${On_Red}${BWhite}Error:${Color_Off} ${BRed}Debe usar el parámetro -d o -f.${Color_Off}"
     tput cnorm
+    exit 1
 else
     banner
     validateOutput
